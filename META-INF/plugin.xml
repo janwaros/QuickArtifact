@@ -1,22 +1,23 @@
 <idea-plugin version="2">
-  <id>com.yourcompany.unique.plugin.id</id>
-  <name>Plugin display name here</name>
+  <id>com.github.janwaros.QuickArtifact</id>
+  <name>QuickArtifact</name>
   <version>1.0</version>
-  <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+    <vendor email="koscinski.jaroslaw@gmail.com" url="https://github.com/janwaros/QuickArtifact">Jarosław Kościński</vendor>
 
   <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+      This plugin allows to build artifacts with one click. There is no need to define anything, just right click on a module,
+       package or file(s) to build artifact from it. More advanced options coming soon.<br>
+
     ]]></description>
 
   <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
+      13.1.Beta<br>
+      <em>Beta version.</em>
     ]]>
   </change-notes>
 
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="131"/>
+  <idea-version since-build="135"/>
 
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
        on how to target different products -->
@@ -37,7 +38,12 @@
   </project-components>
 
   <actions>
-    <!-- Add your actions here -->
+      <group id="QuickArtifactGroup">
+      <action id="QuickArtifact" class="com.github.janwaros.QuickArtifact.actions.BuildMenuAction"/>
+      <separator/>
+          <add-to-group group-id="BuildMenu" anchor="before" relative-to-action="BuildArtifact"/>
+          <add-to-group group-id="ProjectViewCompileGroup" anchor="first"/>
+      </group>
   </actions>
 
 </idea-plugin>
