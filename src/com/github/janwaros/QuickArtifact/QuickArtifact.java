@@ -12,15 +12,11 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.packaging.artifacts.Artifact;
 import com.intellij.packaging.artifacts.ArtifactManager;
 import com.intellij.packaging.artifacts.ModifiableArtifactModel;
-import com.intellij.packaging.impl.artifacts.ArtifactImpl;
-import com.intellij.packaging.impl.artifacts.JarArtifactType;
 import com.intellij.packaging.impl.compiler.ArtifactCompileScope;
 import com.intellij.packaging.impl.compiler.ArtifactsWorkspaceSettings;
 import org.apache.commons.lang.ArrayUtils;
 
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.

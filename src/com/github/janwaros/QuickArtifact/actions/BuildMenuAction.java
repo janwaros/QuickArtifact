@@ -27,7 +27,6 @@ public class BuildMenuAction extends CompileActionBase {
 
         QuickArtifact.QuickArtifactBuilder quickArtifactBuilder = QuickArtifact.withProject(project);
 
-        Module module;
         Module[] modules = LangDataKeys.MODULE_CONTEXT_ARRAY.getData(dataContext);
 
         if(modules !=null) {
@@ -61,18 +60,23 @@ public class BuildMenuAction extends CompileActionBase {
         }
 
         CompilerConfiguration compilerConfiguration = CompilerConfiguration.getInstance(project);
-        final Module module = LangDataKeys.MODULE_CONTEXT.getData(dataContext);
+
+        Module[] modules = LangDataKeys.MODULE_CONTEXT_ARRAY.getData(dataContext);
 
         final VirtualFile[] files = Utils.getCompilableFiles(project, CommonDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext));
-        if (module == null && files.length == 0) {
+        if (files.length == 0 && (modules==null || modules.length==0)) {
             presentation.setEnabled(false);
             presentation.setVisible(!ActionPlaces.isPopupPlace(event.getPlace()));
             return;
         }
 
         String elementDescription = null;
-        if (module != null) {
-            elementDescription = "Module " + "'" + module.getName() + "'";
+        if (modules != null && modules.length > 0 && files.length == 0) {
+            if(modules.length==1) {
+                elementDescription = "Module " + "'" + modules[0].getName() + "'";
+            } else {
+                elementDescription = "Selected Modules";
+            }
         }
         else {
             PsiPackage aPackage = null;
@@ -89,17 +93,17 @@ public class BuildMenuAction extends CompileActionBase {
                 }
             }
 
-            if (aPackage != null) {
+            if (aPackage != null && !(modules != null && modules.length > 0)) {
                 String name = aPackage.getQualifiedName();
                 if (name.length() == 0) {
                     name = "<default>";
                 }
                 elementDescription = "'" + name + "'";
             }
-            else if (files.length == 1) {
+            else if (files.length == 1 && !(modules != null && modules.length > 0)) {
                 final VirtualFile file = files[0];
                 FileType fileType = file.getFileType();
-                if (CompilerManager.getInstance(project).isCompilableFileType(fileType) || Utils.isCompilableResourceFile(project, compilerConfiguration, file)) {
+                if (CompilerManager.getInstance(project).isCompilableFileType(fileType) || compilerConfiguration.isResourceFile(file)) {
                     elementDescription = "'" + file.getName() + "'";
                 }
                 else {

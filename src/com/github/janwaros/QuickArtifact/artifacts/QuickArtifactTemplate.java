@@ -12,12 +12,14 @@ import com.intellij.packaging.artifacts.Artifact;
 import com.intellij.packaging.elements.ArtifactRootElement;
 import com.intellij.packaging.elements.CompositePackagingElement;
 import com.intellij.packaging.elements.PackagingElementFactory;
-import com.intellij.packaging.impl.artifacts.*;
+import com.intellij.packaging.impl.artifacts.ArtifactImpl;
+import com.intellij.packaging.impl.artifacts.ArtifactUtil;
+import com.intellij.packaging.impl.artifacts.JarArtifactType;
 import com.intellij.packaging.impl.elements.ProductionModuleOutputElementType;
 import com.intellij.packaging.impl.elements.TestModuleOutputElementType;
 import com.intellij.util.Processor;
 
-import java.util.*;
+import java.util.Arrays;
 
 /**
  * Created with IntelliJ IDEA.
