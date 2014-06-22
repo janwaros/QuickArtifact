@@ -1,9 +1,11 @@
 package com.github.janwaros.QuickArtifact.actions;
 
 import com.github.janwaros.QuickArtifact.QuickArtifact;
+import com.github.janwaros.QuickArtifact.exceptions.QuickArtifactException;
 import com.github.janwaros.QuickArtifact.utils.Utils;
 import com.intellij.compiler.CompilerConfiguration;
 import com.intellij.compiler.actions.CompileActionBase;
+import com.intellij.diagnostic.PluginException;
 import com.intellij.idea.ActionsBundle;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.compiler.CompilerManager;
@@ -24,21 +26,24 @@ public class BuildMenuAction extends CompileActionBase {
 
 
     protected void doAction(DataContext dataContext, Project project) {
+        try {
+            QuickArtifact.QuickArtifactBuilder quickArtifactBuilder = QuickArtifact.withProject(project);
 
-        QuickArtifact.QuickArtifactBuilder quickArtifactBuilder = QuickArtifact.withProject(project);
+            Module[] modules = LangDataKeys.MODULE_CONTEXT_ARRAY.getData(dataContext);
 
-        Module[] modules = LangDataKeys.MODULE_CONTEXT_ARRAY.getData(dataContext);
+            if (modules != null) {
+                quickArtifactBuilder.withModules(modules);
+            }
 
-        if(modules !=null) {
-            quickArtifactBuilder.withModules(modules);
+            VirtualFile[] files = Utils.getCompilableFiles(project, CommonDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext));
+            if (files.length > 0) {
+                quickArtifactBuilder.withFiles(files);
+            }
+
+            quickArtifactBuilder.create().build();
+        } catch (QuickArtifactException ce) {
+            throw new RuntimeException(ce);
         }
-
-        VirtualFile[] files = Utils.getCompilableFiles(project, CommonDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext));
-        if (files.length > 0) {
-            quickArtifactBuilder.withFiles(files);
-        }
-
-        quickArtifactBuilder.create().build();
 
     }
 

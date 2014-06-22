@@ -1,6 +1,7 @@
 package com.github.janwaros.QuickArtifact.utils;
 
-import com.github.janwaros.QuickArtifact.artifacts.QuickArtifactPackagingElement;
+import com.github.janwaros.QuickArtifact.artifacts.packaging.QuickArtifactPackagingElement;
+import com.github.janwaros.QuickArtifact.exceptions.QuickArtifactException;
 import com.intellij.compiler.CompilerConfiguration;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.fileTypes.FileType;
@@ -13,10 +14,9 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.packaging.elements.CompositePackagingElement;
+import com.intellij.packaging.elements.PackagingElement;
 import com.intellij.packaging.elements.PackagingElementFactory;
-import com.intellij.psi.JavaDirectoryService;
-import com.intellij.psi.PsiDirectory;
-import com.intellij.psi.PsiManager;
+import com.intellij.psi.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,47 +62,81 @@ public class Utils {
         return VfsUtil.toVirtualFileArray(filesToCompile);
     }
 
-    public static CompositePackagingElement getPackagingElementForCompilableFiles(Project project, VirtualFile[] files) {
+    public static String getVirtualFileOutputPath(VirtualFile file, Project project) {
+
         final PsiManager psiManager = PsiManager.getInstance(project);
-        final PackagingElementFactory factory = PackagingElementFactory.getInstance();
-        final CompilerConfiguration compilerConfiguration = CompilerConfiguration.getInstance(project);
 
-        final CompositePackagingElement compositePackagingElement = new QuickArtifactPackagingElement();
+        final Module module = ModuleUtil.findModuleForFile(file, project);
+        final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(module);
 
-        for (final VirtualFile file : files) {
+        VirtualFile moduleOutputPath = extension.getCompilerOutputPath();
 
-            final Module module = ModuleUtil.findModuleForFile(file, project);
-            VirtualFile moduleOutputPath = CompilerModuleExtension.getInstance(module).getCompilerOutputPath();
+        if (file.isDirectory()) {
+            final PsiDirectory directory = psiManager.findDirectory(file);
+            return moduleOutputPath.getPath() + "/" + JavaDirectoryService.getInstance().getPackage(directory).getQualifiedName().replaceAll("\\.", "/");
+        } else {
+            final PsiFile psiFile = psiManager.findFile(file);
+            return moduleOutputPath.getPath() + "/" + JavaDirectoryService.getInstance().getPackage(psiFile.getParent()).getQualifiedName().replaceAll("\\.", "/");
+        }
+    }
 
-            if (file.isDirectory()) {
-                final PsiDirectory directory = psiManager.findDirectory(file);
-                String relativePath = JavaDirectoryService.getInstance().getPackage(directory).getQualifiedName().replaceAll("\\.","/");
-                compositePackagingElement.addOrFindChild(factory.createDirectoryCopyWithParentDirectories(moduleOutputPath.findFileByRelativePath(relativePath).getPath(), relativePath));
-            }
-            else {
+    /*
+    public static CompositePackagingElement getPackagingElementForCompilableFiles(Project project, VirtualFile[] files) throws QuickArtifactException {
+        try {
+            final PsiManager psiManager = PsiManager.getInstance(project);
+            final PackagingElementFactory factory = PackagingElementFactory.getInstance();
+            final CompilerConfiguration compilerConfiguration = CompilerConfiguration.getInstance(project);
 
-                final PsiDirectory directory = psiManager.findDirectory(file.getParent());
-                String relativePath = JavaDirectoryService.getInstance().getPackage(directory).getQualifiedName().replaceAll("\\.","/");
+            final PackagingElement compositePackagingElement = new QuickArtifactPackagingElement();
 
-                VirtualFile outputParentDirectory = moduleOutputPath.findFileByRelativePath(relativePath);
+            for (final VirtualFile file : files) {
 
-                if(compilerConfiguration.isResourceFile(file)) {
+                final Module module = ModuleUtil.findModuleForFile(file, project);
+                final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(module);
 
-                    compositePackagingElement.addOrFindChild(factory.createFileCopyWithParentDirectories(outputParentDirectory.findChild(file.getName()).getPath(), relativePath));
+                if (extension == null) {
+                    throw new QuickArtifactException("CompilerModuleExtension for module "+module+" is null!");
+                }
 
+                VirtualFile moduleOutputPath = extension.getCompilerOutputPath();
+
+                if (file.isDirectory()) {
+                    final PsiDirectory directory = psiManager.findDirectory(file);
+                    String relativePath = JavaDirectoryService.getInstance().getPackage(directory).getQualifiedName().replaceAll("\\.", "/");
+                    compositePackagingElement.addOrFindChild(factory.createDirectoryCopyWithParentDirectories(moduleOutputPath.getPath() + "/" + relativePath, relativePath));
                 } else {
 
-                    for (VirtualFile classFile : outputParentDirectory.getChildren()) {
-                        if (classFile.getExtension().equals("class") && (classFile.getNameWithoutExtension().equals(file.getNameWithoutExtension()) || classFile.getNameWithoutExtension().startsWith(file.getNameWithoutExtension() + "$"))) {
-                            compositePackagingElement.addOrFindChild(factory.createFileCopyWithParentDirectories(classFile.getPath(), relativePath));
+                    final PsiFile psiFile = psiManager.findFile(file);
+                    String relativePath = JavaDirectoryService.getInstance().getPackage(psiFile.getParent()).getQualifiedName().replaceAll("\\.", "/");
+
+                    String outputParentDirectory = moduleOutputPath.getPath() + "/" + relativePath;
+
+                    if (compilerConfiguration.isResourceFile(file)) {
+
+                        compositePackagingElement.addOrFindChild(factory.createFileCopyWithParentDirectories(outputParentDirectory + "/" + file.getName(), relativePath));
+
+                    } else {
+
+                        if(psiFile instanceof PsiJavaFile ) {
+                            PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
+
+                            for (PsiClass psiClass : psiJavaFile.getClasses()) {
+                                psiClass.getQualifiedName().replaceAll("\\.", "/");
+                                //compositePackagingElement.addOrFindChild(factory.createFileCopyWithParentDirectories(classFile.getPath(), relativePath));
+
+                            }
                         }
                     }
-
                 }
             }
-        }
 
-        return compositePackagingElement;
+            return compositePackagingElement;
+        } catch (QuickArtifactException ce) {
+            throw ce;
+        } catch (Exception e) {
+            throw new QuickArtifactException(e);
+        }
     }
+    */
 
 }

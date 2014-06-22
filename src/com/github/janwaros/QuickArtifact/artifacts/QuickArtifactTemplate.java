@@ -1,5 +1,7 @@
 package com.github.janwaros.QuickArtifact.artifacts;
 
+import com.github.janwaros.QuickArtifact.artifacts.packaging.QuickArtifactPackagingElement;
+import com.github.janwaros.QuickArtifact.exceptions.QuickArtifactException;
 import com.github.janwaros.QuickArtifact.utils.Utils;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -15,6 +17,7 @@ import com.intellij.packaging.elements.PackagingElementFactory;
 import com.intellij.packaging.impl.artifacts.ArtifactImpl;
 import com.intellij.packaging.impl.artifacts.ArtifactUtil;
 import com.intellij.packaging.impl.artifacts.JarArtifactType;
+import com.intellij.packaging.impl.elements.ArtifactPackagingElement;
 import com.intellij.packaging.impl.elements.ProductionModuleOutputElementType;
 import com.intellij.packaging.impl.elements.TestModuleOutputElementType;
 import com.intellij.util.Processor;
@@ -41,7 +44,7 @@ public class QuickArtifactTemplate {
 
     }
 
-    public Artifact buildArtifact(String name, String outputFilePath,  Module[] modulesToInclude, VirtualFile[] filesToInclude) {
+    public Artifact buildArtifact(String name, String outputFilePath,  Module[] modulesToInclude, VirtualFile[] filesToInclude) throws QuickArtifactException {
 
         return new ArtifactImpl(name,
                 JarArtifactType.getInstance(),
@@ -51,7 +54,7 @@ public class QuickArtifactTemplate {
     }
 
 
-    private CompositePackagingElement buildPackage(String name, final Module[] modulesToInclude, VirtualFile[] filesToInclude) {
+    private CompositePackagingElement buildPackage(String name, final Module[] modulesToInclude, VirtualFile[] filesToInclude) throws QuickArtifactException {
 
         //maybe for future usage
         final boolean includeTests = false;
@@ -64,9 +67,8 @@ public class QuickArtifactTemplate {
         if (!includeTests) {
             orderEnumerator = orderEnumerator.productionOnly();
         }
-        final ModulesProvider modulesProvider = new IncludedModuleProvider(modulesToInclude) {
+        final ModulesProvider modulesProvider = new IncludedModuleProvider(modulesToInclude);
 
-        };
         final OrderEnumerator enumerator = orderEnumerator.using(modulesProvider).withoutSdk().runtimeOnly().recursively();
         enumerator.forEachModule(new Processor<Module>() {
             @Override
@@ -81,7 +83,9 @@ public class QuickArtifactTemplate {
             }
         });
 
-        archive.addOrFindChild(Utils.getPackagingElementForCompilableFiles(project, filesToInclude));
+        for(VirtualFile file : filesToInclude) {
+            archive.addOrFindChild(new QuickArtifactPackagingElement(file));
+        }
 
         final ArtifactRootElement<?> root = factory.createArtifactRootElement();
         root.addOrFindChild(archive);

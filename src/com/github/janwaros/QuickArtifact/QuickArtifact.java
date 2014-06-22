@@ -2,6 +2,7 @@ package com.github.janwaros.QuickArtifact;
 
 import com.github.janwaros.QuickArtifact.artifacts.BuildFinishedHandler;
 import com.github.janwaros.QuickArtifact.artifacts.QuickArtifactTemplate;
+import com.github.janwaros.QuickArtifact.exceptions.QuickArtifactException;
 import com.intellij.openapi.application.Result;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.compiler.CompileScope;
@@ -33,7 +34,7 @@ public class QuickArtifact {
     private CompilerManager compilerManager;
     private Module[] affectedModules;
 
-    private QuickArtifact(QuickArtifactBuilder builder) {
+    private QuickArtifact(QuickArtifactBuilder builder) throws QuickArtifactException {
         this.builder = builder;
         modifiableModel = ArtifactManager.getInstance(builder.project).createModifiableModel();
         compilerManager = CompilerManager.getInstance(builder.project);
@@ -77,7 +78,7 @@ public class QuickArtifact {
             return this;
         }
 
-        public QuickArtifact create() {
+        public QuickArtifact create() throws QuickArtifactException {
             return new QuickArtifact(this);
         }
 
