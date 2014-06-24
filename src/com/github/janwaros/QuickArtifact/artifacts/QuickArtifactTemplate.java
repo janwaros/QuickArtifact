@@ -1,6 +1,6 @@
 package com.github.janwaros.QuickArtifact.artifacts;
 
-import com.github.janwaros.QuickArtifact.artifacts.packaging.QuickArtifactPackagingElement;
+import com.github.janwaros.QuickArtifact.artifacts.packaging.ClassesCopyPackagingElement;
 import com.github.janwaros.QuickArtifact.exceptions.QuickArtifactException;
 import com.github.janwaros.QuickArtifact.utils.Utils;
 import com.intellij.openapi.module.Module;
@@ -17,11 +17,12 @@ import com.intellij.packaging.elements.PackagingElementFactory;
 import com.intellij.packaging.impl.artifacts.ArtifactImpl;
 import com.intellij.packaging.impl.artifacts.ArtifactUtil;
 import com.intellij.packaging.impl.artifacts.JarArtifactType;
-import com.intellij.packaging.impl.elements.ArtifactPackagingElement;
+import com.intellij.packaging.impl.elements.DirectoryPackagingElement;
 import com.intellij.packaging.impl.elements.ProductionModuleOutputElementType;
 import com.intellij.packaging.impl.elements.TestModuleOutputElementType;
 import com.intellij.util.Processor;
 
+import java.io.File;
 import java.util.Arrays;
 
 /**
@@ -84,7 +85,21 @@ public class QuickArtifactTemplate {
         });
 
         for(VirtualFile file : filesToInclude) {
-            archive.addOrFindChild(new QuickArtifactPackagingElement(file));
+            String relativePath = Utils.getVirtualFileRelativeOutputPath(file, project);
+            String outputPath = Utils.getVirtualFileOutputPath(file, project);
+            if(file.isDirectory()) {
+                archive.addOrFindChild(factory.createDirectoryCopyWithParentDirectories(outputPath, relativePath));
+            } else {
+                DirectoryPackagingElement dir = new DirectoryPackagingElement(relativePath);
+                if(Utils.isResourceFile(project, file)) {
+                    dir.addOrFindChild(new ClassesCopyPackagingElement(outputPath+File.separator+file.getName()));
+                } else {
+                    dir.addOrFindChild(new ClassesCopyPackagingElement(outputPath+File.separator+file.getNameWithoutExtension()+".class"));
+                }
+
+                archive.addOrFindChild(dir);
+            }
+
         }
 
         final ArtifactRootElement<?> root = factory.createArtifactRootElement();

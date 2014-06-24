@@ -1,4 +1,4 @@
-package com.github.janwaros.QuickArtifact.artifacts;
+package com.github.janwaros.QuickArtifact.handlers;
 
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;

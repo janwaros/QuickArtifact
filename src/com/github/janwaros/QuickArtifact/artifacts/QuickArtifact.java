@@ -1,8 +1,7 @@
-package com.github.janwaros.QuickArtifact;
+package com.github.janwaros.QuickArtifact.artifacts;
 
-import com.github.janwaros.QuickArtifact.artifacts.BuildFinishedHandler;
-import com.github.janwaros.QuickArtifact.artifacts.QuickArtifactTemplate;
 import com.github.janwaros.QuickArtifact.exceptions.QuickArtifactException;
+import com.github.janwaros.QuickArtifact.handlers.BuildFinishedHandler;
 import com.intellij.openapi.application.Result;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.compiler.CompileScope;

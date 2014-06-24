@@ -1,8 +1,6 @@
 package com.github.janwaros.QuickArtifact.artifacts.packaging;
 
-import com.github.janwaros.QuickArtifact.exceptions.QuickArtifactException;
 import com.github.janwaros.QuickArtifact.utils.Utils;
-import com.intellij.compiler.ant.BuildProperties;
 import com.intellij.compiler.ant.Generator;
 import com.intellij.compiler.ant.Tag;
 import com.intellij.compiler.ant.artifacts.DirectoryAntCopyInstructionCreator;
@@ -12,17 +10,12 @@ import com.intellij.compiler.ant.taskdefs.Include;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.openapi.compiler.CompileContext;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtil;
-import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.vfs.newvfs.impl.VirtualFileImpl;
 import com.intellij.packaging.artifacts.ArtifactType;
 import com.intellij.packaging.elements.*;
-import com.intellij.packaging.impl.elements.PackagingElementFactoryImpl;
+import com.intellij.packaging.impl.elements.FileOrDirectoryCopyPackagingElement;
 import com.intellij.packaging.ui.ArtifactEditorContext;
 import com.intellij.packaging.ui.PackagingElementPresentation;
 import com.intellij.ui.SimpleTextAttributes;
@@ -38,27 +31,30 @@ import java.util.List;
  * Date: 25.03.2014
  * Time: 01:43
  */
-public class QuickArtifactPackagingElement extends PackagingElement<QuickArtifactPackagingElement> {
+public class ClassesCopyPackagingElement extends FileOrDirectoryCopyPackagingElement<ClassesCopyPackagingElement> {
 
-    private VirtualFile virtualFile;
+    public static final ClassesCopyElementType CLASSES_COPY_ELEMENT_TYPE = new ClassesCopyElementType();
 
+    public ClassesCopyPackagingElement() {
+        super(CLASSES_COPY_ELEMENT_TYPE);
+    }
 
-    public QuickArtifactPackagingElement(VirtualFile virtualFile) {
-        super(PackagingElementFactoryImpl.ARTIFACT_ROOT_ELEMENT_TYPE);
-        this.virtualFile = virtualFile;
+    public ClassesCopyPackagingElement(String directoryWithFileName) {
+        this();
+        myFilePath = directoryWithFileName;
     }
 
     public PackagingElementPresentation createPresentation(@NotNull ArtifactEditorContext context) {
         return new PackagingElementPresentation() {
             @Override
             public String getPresentableName() {
-                return "QuickArtifact output of "+virtualFile.toString();
+                return "Classes copied from "+myFilePath+"[$*].class";
             }
 
             @Override
             public void render(@NotNull PresentationData presentationData, SimpleTextAttributes mainAttributes,
                                SimpleTextAttributes commentAttributes) {
-                presentationData.setIcon(AllIcons.Nodes.CopyOfFolder);
+                presentationData.setIcon(AllIcons.Nodes.CompiledClassesFolder);
                 presentationData.addText(getPresentableName(), mainAttributes);
             }
 
@@ -69,34 +65,27 @@ public class QuickArtifactPackagingElement extends PackagingElement<QuickArtifac
         };
     }
 
-    public QuickArtifactPackagingElement getState() {
+    public ClassesCopyPackagingElement getState() {
         return this;
     }
 
-    public void loadState(QuickArtifactPackagingElement state) {
+    public void loadState(ClassesCopyPackagingElement state) {
+        setFilePath(state.getFilePath());
     }
 
-    @NotNull
-    public Tag createClassContentCopyInstruction(String myOutputDirectory, String classOutputDir, @NotNull String classFileName) {
-        final Copy copy = new Copy(myOutputDirectory);
-        final FileSet fileSet = new FileSet(classOutputDir);
-        fileSet.add(new Include("/"+classFileName+".class"));
-        fileSet.add(new Include("/"+classFileName+"$*.class"));
-        copy.add(fileSet);
-        return copy;
-    }
+
 
     public List<? extends Generator> computeAntInstructions(@NotNull PackagingElementResolvingContext resolvingContext, @NotNull AntCopyInstructionCreator creator,
                                                             @NotNull ArtifactAntGenerationContext generationContext,
                                                             @NotNull ArtifactType artifactType) {
 
+        return Collections.emptyList();
+
+        /*
         String fileOutputPath = Utils.getVirtualFileOutputPath(virtualFile, resolvingContext.getProject());
 
-        if(virtualFile.isDirectory()) {
-            return Collections.singletonList(creator.createDirectoryContentCopyInstruction(fileOutputPath));
-        } else {
-            return Collections.singletonList(this.createClassContentCopyInstruction(((DirectoryAntCopyInstructionCreator) creator).getOutputDirectory(), fileOutputPath, virtualFile.getNameWithoutExtension()));
-        }
+        return Collections.singletonList(this.createClassContentCopyInstruction(((DirectoryAntCopyInstructionCreator) creator).getOutputDirectory(), fileOutputPath, virtualFile.getNameWithoutExtension()));
+        */
     }
 
     @Override
@@ -104,33 +93,25 @@ public class QuickArtifactPackagingElement extends PackagingElement<QuickArtifac
                                                        @NotNull PackagingElementResolvingContext resolvingContext,
                                                        @NotNull ArtifactIncrementalCompilerContext compilerContext, @NotNull ArtifactType artifactType) {
 
+        /*
         VirtualFile fileOutputPath = LocalFileSystem.getInstance().findFileByIoFile(new File(Utils.getVirtualFileOutputPath(virtualFile, resolvingContext.getProject())));
 
+        creator.addDirectoryCopyInstructions(fileOutputPath, new PackagingFileFilter() {
+            @Override
+            public boolean accept(@NotNull VirtualFile virtualFile, @NotNull CompileContext context) {
 
-        if(virtualFile.isDirectory()) {
-            creator.addDirectoryCopyInstructions(fileOutputPath, null);
-        } else {
-            creator.addDirectoryCopyInstructions(fileOutputPath, new PackagingFileFilter() {
-                @Override
-                public boolean accept(@NotNull VirtualFile virtualFile, @NotNull CompileContext context) {
+                    return (virtualFile.getExtension().equals("class") &&
+                            (virtualFile.getNameWithoutExtension().equals(ClassesCopyPackagingElement.this.virtualFile.getNameWithoutExtension())
+                                    || virtualFile.getNameWithoutExtension().startsWith(ClassesCopyPackagingElement.this.virtualFile.getNameWithoutExtension() + "$")));
 
-                        return (virtualFile.getExtension().equals("class") &&
-                                (virtualFile.getNameWithoutExtension().equals(QuickArtifactPackagingElement.this.virtualFile.getNameWithoutExtension())
-                                        || virtualFile.getNameWithoutExtension().startsWith(QuickArtifactPackagingElement.this.virtualFile.getNameWithoutExtension() + "$")));
+            }
+        });
+        */
 
-                }
-            });
-        }
-
-    }
-
-    @Override
-    public boolean isEqualTo(@NotNull PackagingElement<?> element) {
-        return false;
     }
 
     @Override
     public String toString() {
-        return "<root>";
+        return "<classes-copy>";
     }
 }

@@ -1,11 +1,10 @@
 package com.github.janwaros.QuickArtifact.actions;
 
-import com.github.janwaros.QuickArtifact.QuickArtifact;
+import com.github.janwaros.QuickArtifact.artifacts.QuickArtifact;
 import com.github.janwaros.QuickArtifact.exceptions.QuickArtifactException;
 import com.github.janwaros.QuickArtifact.utils.Utils;
 import com.intellij.compiler.CompilerConfiguration;
 import com.intellij.compiler.actions.CompileActionBase;
-import com.intellij.diagnostic.PluginException;
 import com.intellij.idea.ActionsBundle;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.compiler.CompilerManager;

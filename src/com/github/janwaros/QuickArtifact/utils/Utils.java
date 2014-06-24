@@ -1,7 +1,6 @@
 package com.github.janwaros.QuickArtifact.utils;
 
-import com.github.janwaros.QuickArtifact.artifacts.packaging.QuickArtifactPackagingElement;
-import com.github.janwaros.QuickArtifact.exceptions.QuickArtifactException;
+
 import com.intellij.compiler.CompilerConfiguration;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.fileTypes.FileType;
@@ -13,11 +12,9 @@ import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.packaging.elements.CompositePackagingElement;
-import com.intellij.packaging.elements.PackagingElement;
-import com.intellij.packaging.elements.PackagingElementFactory;
 import com.intellij.psi.*;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,9 +59,27 @@ public class Utils {
         return VfsUtil.toVirtualFileArray(filesToCompile);
     }
 
-    public static String getVirtualFileOutputPath(VirtualFile file, Project project) {
+    public static boolean isResourceFile(Project project, VirtualFile file) {
+        final CompilerConfiguration compilerConfiguration = CompilerConfiguration.getInstance(project);
+        return compilerConfiguration.isResourceFile(file);
+    }
+
+    public static String getVirtualFileRelativeOutputPath(VirtualFile file, Project project) {
 
         final PsiManager psiManager = PsiManager.getInstance(project);
+
+        if (file.isDirectory()) {
+            final PsiDirectory directory = psiManager.findDirectory(file);
+            return JavaDirectoryService.getInstance().getPackage(directory).getQualifiedName().replaceAll("\\.", File.separator);
+        } else {
+            final PsiFile psiFile = psiManager.findFile(file);
+            return JavaDirectoryService.getInstance().getPackage(psiFile.getParent()).getQualifiedName().replaceAll("\\.", File.separator);
+        }
+
+    }
+
+    public static String getVirtualFileOutputPath(VirtualFile file, Project project) {
+
 
         final Module module = ModuleUtil.findModuleForFile(file, project);
         final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(module);
@@ -72,11 +87,9 @@ public class Utils {
         VirtualFile moduleOutputPath = extension.getCompilerOutputPath();
 
         if (file.isDirectory()) {
-            final PsiDirectory directory = psiManager.findDirectory(file);
-            return moduleOutputPath.getPath() + "/" + JavaDirectoryService.getInstance().getPackage(directory).getQualifiedName().replaceAll("\\.", "/");
+            return moduleOutputPath.getPath() + File.separator + getVirtualFileRelativeOutputPath(file, project);
         } else {
-            final PsiFile psiFile = psiManager.findFile(file);
-            return moduleOutputPath.getPath() + "/" + JavaDirectoryService.getInstance().getPackage(psiFile.getParent()).getQualifiedName().replaceAll("\\.", "/");
+            return moduleOutputPath.getPath() + File.separator + getVirtualFileRelativeOutputPath(file, project);
         }
     }
 

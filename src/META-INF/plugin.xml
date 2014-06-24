@@ -26,7 +26,7 @@
   -->
 
   <extensions defaultExtensionNs="com.intellij">
-    <!-- Add your extensions here -->
+      <compileServer.plugin classpath="QuickArtifact-jps-plugin.jar"/>
   </extensions>
 
   <application-components>
