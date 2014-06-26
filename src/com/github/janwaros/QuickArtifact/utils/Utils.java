@@ -17,7 +17,7 @@ import com.intellij.psi.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 /**
  * Created with IntelliJ IDEA.
@@ -71,10 +71,10 @@ public class Utils {
 
         if (file.isDirectory()) {
             final PsiDirectory directory = psiManager.findDirectory(file);
-            return JavaDirectoryService.getInstance().getPackage(directory).getQualifiedName().replaceAll("\\.", Pattern.quote(File.separator));
+            return JavaDirectoryService.getInstance().getPackage(directory).getQualifiedName().replaceAll("\\.", Matcher.quoteReplacement(File.separator));
         } else {
             final PsiFile psiFile = psiManager.findFile(file);
-            return JavaDirectoryService.getInstance().getPackage(psiFile.getParent()).getQualifiedName().replaceAll("\\.", Pattern.quote(File.separator));
+            return JavaDirectoryService.getInstance().getPackage(psiFile.getParent()).getQualifiedName().replaceAll("\\.", Matcher.quoteReplacement(File.separator));
         }
 
     }

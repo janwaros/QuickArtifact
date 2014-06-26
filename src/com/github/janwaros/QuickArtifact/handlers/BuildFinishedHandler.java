@@ -10,6 +10,7 @@ import com.intellij.openapi.compiler.CompileStatusNotification;
 import com.intellij.packaging.artifacts.Artifact;
 import com.intellij.packaging.artifacts.ModifiableArtifactModel;
 import com.intellij.packaging.impl.artifacts.ArtifactUtil;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,19 +19,23 @@ import com.intellij.packaging.impl.artifacts.ArtifactUtil;
  * Time: 22:55
  */
 public class BuildFinishedHandler implements CompileStatusNotification {
-    private final Artifact artifact;
+    private final Artifact quickArtifact;
+    private Artifact originalArtifact;
     private final ModifiableArtifactModel model;
 
-    public BuildFinishedHandler(Artifact artifact, ModifiableArtifactModel model) {
-
-        this.artifact = artifact;
+    public BuildFinishedHandler(Artifact quickArtifact, @Nullable Artifact originalArtifact, ModifiableArtifactModel model) {
+        this.quickArtifact = quickArtifact;
+        this.originalArtifact = originalArtifact;
         this.model = model;
     }
 
     @Override
     public void finished(boolean aborted, int errors, int warnings, final CompileContext compileContext) {
 
-        model.removeArtifact(artifact);
+        model.removeArtifact(quickArtifact);
+        if(originalArtifact!=null) {
+            model.addArtifact(originalArtifact.getName(), originalArtifact.getArtifactType(), originalArtifact.getRootElement());
+        }
         new WriteAction() {
             @Override
             protected void run(final Result result) {
@@ -45,7 +50,7 @@ public class BuildFinishedHandler implements CompileStatusNotification {
         } else if(errors>0) {
             notification = new Notification("Quick Artifact", "Quick Artifact Aborted", "creation has been aborted because of compilation errors", NotificationType.WARNING);
         } else {
-            String path = artifact.getOutputFilePath()+"/"+ArtifactUtil.suggestArtifactFileName(artifact.getName()) + ".jar";
+            String path = quickArtifact.getOutputFilePath()+"/"+ArtifactUtil.suggestArtifactFileName(quickArtifact.getName()) + ".jar";
             notification = new Notification("Quick Artifact", "Quick Artifact", "created successfully, written to: "+path, NotificationType.INFORMATION);
         }
 

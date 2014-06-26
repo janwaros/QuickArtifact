@@ -1,5 +1,6 @@
 package com.github.janwaros.QuickArtifact.artifacts;
 
+import com.github.janwaros.QuickArtifact.exceptions.ArtifactAlreadyExistsException;
 import com.github.janwaros.QuickArtifact.exceptions.QuickArtifactException;
 import com.github.janwaros.QuickArtifact.handlers.BuildFinishedHandler;
 import com.intellij.openapi.application.Result;
@@ -16,6 +17,7 @@ import com.intellij.packaging.impl.compiler.ArtifactCompileScope;
 import com.intellij.packaging.impl.compiler.ArtifactsWorkspaceSettings;
 import org.apache.commons.lang.ArrayUtils;
 
+import javax.management.openmbean.KeyAlreadyExistsException;
 import java.util.Arrays;
 
 /**
@@ -83,9 +85,13 @@ public class QuickArtifact {
 
      }
 
-    public QuickArtifact save(String name) {
+    public QuickArtifact save(String name) throws ArtifactAlreadyExistsException {
 
-        lastSavedArtifact = modifiableModel.addArtifact(name, artifact.getArtifactType(), artifact.getRootElement());
+        if(modifiableModel.findArtifact(name) == null) {
+            lastSavedArtifact = modifiableModel.addArtifact(name, artifact.getArtifactType(), artifact.getRootElement());
+        } else {
+            throw new ArtifactAlreadyExistsException("Artifact with name '"+name+"' already exists");
+        }
 
         new WriteAction() {
             @Override
@@ -106,9 +112,17 @@ public class QuickArtifact {
 
         CompileScope scopeWithArtifact = ArtifactCompileScope.createScopeWithArtifacts(affectedModulesScope, Arrays.asList(artifact), true, true) ;
 
-        save(artifact.getName());
+        Artifact originalArtifact = modifiableModel.findArtifact(artifact.getName());
+        if(originalArtifact!=null) {
+            modifiableModel.removeArtifact(originalArtifact);
+        }
+        try {
+            save(artifact.getName());
+        } catch (ArtifactAlreadyExistsException e) {
+            // This shall never happen
+        }
 
-        CompilerManager.getInstance(builder.project).compile(scopeWithArtifact, new BuildFinishedHandler(lastSavedArtifact, modifiableModel));
+        CompilerManager.getInstance(builder.project).compile(scopeWithArtifact, new BuildFinishedHandler(lastSavedArtifact, originalArtifact, modifiableModel));
     }
 
 
