@@ -2,7 +2,6 @@ package jps;
 
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.builders.BuildTarget;
 import org.jetbrains.jps.builders.TargetOutputIndex;
 import org.jetbrains.jps.cmdline.ProjectDescriptor;
@@ -45,7 +44,7 @@ public class ClassesCopyElementBuilder extends LayoutElementBuilderService<JpsCl
                     File fullFile = new File(fullFilePath);
 
                     if(fullFile.isDirectory()) {
-                        return directory.getPath().startsWith(fullFilePath);
+                        return directory.getPath().startsWith(fullFile.getPath());
                     }  else {
                         return fullFile.getName().equals(fileName) || (getExtension(fullFile).equals("class") && getNameWithoutExtension(fullFile).startsWith(getNameWithoutExtension(new File(fileName)) + "$"));
                     }
@@ -56,7 +55,7 @@ public class ClassesCopyElementBuilder extends LayoutElementBuilderService<JpsCl
                     File fullFile = new File(fullFilePath);
 
                     if(fullFile.isDirectory()) {
-                        return directory.getPath().startsWith(fullFilePath);
+                        return directory.getPath().startsWith(fullFile.getPath());
                     }  else {
                         return fullFile.getName().equals(fileName) || (getExtension(fullFile).equals("class") && getNameWithoutExtension(fullFile).startsWith(getNameWithoutExtension(new File(fileName)) + "$"));
                     }
@@ -75,12 +74,12 @@ public class ClassesCopyElementBuilder extends LayoutElementBuilderService<JpsCl
         return Collections.emptyList();
     }
 
-    @Nullable
     @NonNls
+    @NotNull
     public String getExtension(File file) {
         String name = file.getName();
         int index = name.lastIndexOf('.');
-        if (index < 0) return null;
+        if (index < 0) return "";
         return name.substring(index + 1);
     }
 

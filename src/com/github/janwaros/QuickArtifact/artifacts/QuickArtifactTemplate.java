@@ -92,9 +92,9 @@ public class QuickArtifactTemplate {
             } else {
                 DirectoryPackagingElement dir = new DirectoryPackagingElement(relativePath);
                 if(Utils.isResourceFile(project, file)) {
-                    dir.addOrFindChild(new ClassesCopyPackagingElement(outputPath+File.separator+file.getName()));
+                    dir.addOrFindChild(new ClassesCopyPackagingElement(outputPath+"/"+file.getName()));
                 } else {
-                    dir.addOrFindChild(new ClassesCopyPackagingElement(outputPath+File.separator+file.getNameWithoutExtension()+".class"));
+                    dir.addOrFindChild(new ClassesCopyPackagingElement(outputPath+"/"+file.getNameWithoutExtension()+".class"));
                 }
 
                 archive.addOrFindChild(dir);

@@ -71,10 +71,10 @@ public class Utils {
 
         if (file.isDirectory()) {
             final PsiDirectory directory = psiManager.findDirectory(file);
-            return JavaDirectoryService.getInstance().getPackage(directory).getQualifiedName().replaceAll("\\.", Matcher.quoteReplacement(File.separator));
+            return JavaDirectoryService.getInstance().getPackage(directory).getQualifiedName().replaceAll("\\.", "/");
         } else {
             final PsiFile psiFile = psiManager.findFile(file);
-            return JavaDirectoryService.getInstance().getPackage(psiFile.getParent()).getQualifiedName().replaceAll("\\.", Matcher.quoteReplacement(File.separator));
+            return JavaDirectoryService.getInstance().getPackage(psiFile.getParent()).getQualifiedName().replaceAll("\\.", "/");
         }
 
     }
@@ -88,9 +88,9 @@ public class Utils {
         VirtualFile moduleOutputPath = extension.getCompilerOutputPath();
 
         if (file.isDirectory()) {
-            return moduleOutputPath.getPath() + File.separator + getVirtualFileRelativeOutputPath(file, project);
+            return moduleOutputPath.getPath() + "/" + getVirtualFileRelativeOutputPath(file, project);
         } else {
-            return moduleOutputPath.getPath() + File.separator + getVirtualFileRelativeOutputPath(file, project);
+            return moduleOutputPath.getPath() + "/" + getVirtualFileRelativeOutputPath(file, project);
         }
     }
 
