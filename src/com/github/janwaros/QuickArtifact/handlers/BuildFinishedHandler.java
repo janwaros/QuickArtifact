@@ -12,6 +12,8 @@ import com.intellij.packaging.artifacts.ModifiableArtifactModel;
 import com.intellij.packaging.impl.artifacts.ArtifactUtil;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+
 /**
  * Created with IntelliJ IDEA.
  * User: Jaroslaw Koscinski
@@ -32,6 +34,8 @@ public class BuildFinishedHandler implements CompileStatusNotification {
     @Override
     public void finished(boolean aborted, int errors, int warnings, final CompileContext compileContext) {
 
+        String path = quickArtifact.getOutputFilePath()+"/"+ArtifactUtil.suggestArtifactFileName(quickArtifact.getName()) + ".jar";
+
         model.removeArtifact(quickArtifact);
         if(originalArtifact!=null) {
             model.addArtifact(originalArtifact.getName(), originalArtifact.getArtifactType(), originalArtifact.getRootElement());
@@ -49,8 +53,9 @@ public class BuildFinishedHandler implements CompileStatusNotification {
             notification = new Notification("Quick Artifact","Quick Artifact Aborted", "creation has been aborted", NotificationType.WARNING);
         } else if(errors>0) {
             notification = new Notification("Quick Artifact", "Quick Artifact Aborted", "creation has been aborted because of compilation errors", NotificationType.WARNING);
+        } else if(!new File(path).exists()) {
+            notification = new Notification("Quick Artifact", "Quick Artifact Aborted", "creation has has not been successful", NotificationType.WARNING);
         } else {
-            String path = quickArtifact.getOutputFilePath()+"/"+ArtifactUtil.suggestArtifactFileName(quickArtifact.getName()) + ".jar";
             notification = new Notification("Quick Artifact", "Quick Artifact", "created successfully, written to: "+path, NotificationType.INFORMATION);
         }
 

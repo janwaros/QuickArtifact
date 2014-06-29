@@ -13,11 +13,10 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
+import com.intellij.util.Url;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 
 /**
  * Created with IntelliJ IDEA.
@@ -85,12 +84,12 @@ public class Utils {
         final Module module = ModuleUtil.findModuleForFile(file, project);
         final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(module);
 
-        VirtualFile moduleOutputPath = extension.getCompilerOutputPath();
+        String moduleOutputUrl = extension.getCompilerOutputUrl();
 
         if (file.isDirectory()) {
-            return moduleOutputPath.getPath() + "/" + getVirtualFileRelativeOutputPath(file, project);
+            return moduleOutputUrl + "/" + getVirtualFileRelativeOutputPath(file, project);
         } else {
-            return moduleOutputPath.getPath() + "/" + getVirtualFileRelativeOutputPath(file, project);
+            return moduleOutputUrl + "/" + getVirtualFileRelativeOutputPath(file, project);
         }
     }
 
