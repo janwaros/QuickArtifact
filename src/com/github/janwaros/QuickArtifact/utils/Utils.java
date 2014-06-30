@@ -85,7 +85,7 @@ public class Utils {
         final Module module = ModuleUtil.findModuleForFile(file, project);
         final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(module);
 
-        String moduleOutput = VirtualFileManager.getInstance().findFileByUrl(extension.getCompilerOutputUrl()).getPath();
+        String moduleOutput = extension.getCompilerOutputUrl().replaceAll("file://","");
 
         if (file.isDirectory()) {
             return moduleOutput + "/" + getVirtualFileRelativeOutputPath(file, project);
