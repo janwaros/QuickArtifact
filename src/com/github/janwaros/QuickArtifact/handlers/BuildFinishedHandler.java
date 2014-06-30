@@ -34,7 +34,7 @@ public class BuildFinishedHandler implements CompileStatusNotification {
     @Override
     public void finished(boolean aborted, int errors, int warnings, final CompileContext compileContext) {
 
-        String path = quickArtifact.getOutputFilePath()+"/"+ArtifactUtil.suggestArtifactFileName(quickArtifact.getName()) + ".jar";
+        String path = quickArtifact.getOutputFilePath();
 
         model.removeArtifact(quickArtifact);
         if(originalArtifact!=null) {

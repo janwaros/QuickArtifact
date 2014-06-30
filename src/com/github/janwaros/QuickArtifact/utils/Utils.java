@@ -12,6 +12,7 @@ import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.*;
 import com.intellij.util.Url;
 
@@ -84,12 +85,12 @@ public class Utils {
         final Module module = ModuleUtil.findModuleForFile(file, project);
         final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(module);
 
-        String moduleOutputUrl = extension.getCompilerOutputUrl();
+        String moduleOutput = VirtualFileManager.getInstance().findFileByUrl(extension.getCompilerOutputUrl()).getPath();
 
         if (file.isDirectory()) {
-            return moduleOutputUrl + "/" + getVirtualFileRelativeOutputPath(file, project);
+            return moduleOutput + "/" + getVirtualFileRelativeOutputPath(file, project);
         } else {
-            return moduleOutputUrl + "/" + getVirtualFileRelativeOutputPath(file, project);
+            return moduleOutput + "/" + getVirtualFileRelativeOutputPath(file, project);
         }
     }
 

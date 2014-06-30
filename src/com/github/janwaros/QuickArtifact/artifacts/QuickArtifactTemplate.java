@@ -70,19 +70,20 @@ public class QuickArtifactTemplate {
         }
         final ModulesProvider modulesProvider = new IncludedModuleProvider(modulesToInclude);
 
-        final OrderEnumerator enumerator = orderEnumerator.using(modulesProvider).withoutSdk().runtimeOnly().recursively();
-        enumerator.forEachModule(new Processor<Module>() {
-            @Override
-            public boolean process(Module module) {
+//        final OrderEnumerator enumerator = orderEnumerator.using(modulesProvider).withoutSdk().runtimeOnly().recursively();
+//        enumerator.forEachModule(new Processor<Module>() {
+//            @Override
+//            public boolean process(Module module) {
+        for(Module module : modulesProvider.getModules()) {
                 if (ProductionModuleOutputElementType.ELEMENT_TYPE.isSuitableModule(modulesProvider, module)) {
                     archive.addOrFindChild(factory.createModuleOutput(module));
                 }
                 if (includeTests && TestModuleOutputElementType.ELEMENT_TYPE.isSuitableModule(modulesProvider, module)) {
                     archive.addOrFindChild(factory.createTestModuleOutput(module));
                 }
-                return true;
-            }
-        });
+                //return true;
+
+        }
 
         for(VirtualFile file : filesToInclude) {
             String relativePath = Utils.getVirtualFileRelativeOutputPath(file, project);
@@ -102,10 +103,7 @@ public class QuickArtifactTemplate {
 
         }
 
-        final ArtifactRootElement<?> root = factory.createArtifactRootElement();
-        root.addOrFindChild(archive);
-
-        return root;
+        return archive;
     }
 
     private class IncludedModuleProvider extends DefaultModulesProvider {
