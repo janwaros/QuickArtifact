@@ -93,9 +93,10 @@ public class QuickArtifactTemplate {
             } else {
                 DirectoryPackagingElement dir = new DirectoryPackagingElement(relativePath);
                 if(Utils.isResourceFile(project, file)) {
-                    dir.addOrFindChild(new ClassesCopyPackagingElement(outputPath+"/"+file.getName()));
-                } else {
-                    dir.addOrFindChild(new ClassesCopyPackagingElement(outputPath+"/"+file.getNameWithoutExtension()+".class"));
+                    dir.addOrFindChild(new ClassesCopyPackagingElement(outputPath + "/" + file.getName()));
+                }
+                if(Utils.isCompilableFile(project,file)) {
+                    dir.addOrFindChild(new ClassesCopyPackagingElement(outputPath + "/" + file.getNameWithoutExtension()+".class"));
                 }
 
                 archive.addOrFindChild(dir);

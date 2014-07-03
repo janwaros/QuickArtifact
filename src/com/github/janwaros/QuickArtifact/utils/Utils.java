@@ -60,6 +60,11 @@ public class Utils {
         return VfsUtil.toVirtualFileArray(filesToCompile);
     }
 
+    public static boolean isCompilableFile(Project project, VirtualFile file) {
+        final CompilerManager compilerManager = CompilerManager.getInstance(project);
+        return compilerManager.isCompilableFileType(file.getFileType());
+    }
+
     public static boolean isResourceFile(Project project, VirtualFile file) {
         final CompilerConfiguration compilerConfiguration = CompilerConfiguration.getInstance(project);
         return compilerConfiguration.isResourceFile(file);

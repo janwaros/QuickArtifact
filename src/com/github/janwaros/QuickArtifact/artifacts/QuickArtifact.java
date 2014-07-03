@@ -122,7 +122,7 @@ public class QuickArtifact {
             // This shall never happen
         }
 
-        CompilerManager.getInstance(builder.project).compile(scopeWithArtifact, new BuildFinishedHandler(lastSavedArtifact, originalArtifact, modifiableModel));
+        CompilerManager.getInstance(builder.project).make(scopeWithArtifact, new BuildFinishedHandler(lastSavedArtifact, originalArtifact, modifiableModel));
     }
 
 
