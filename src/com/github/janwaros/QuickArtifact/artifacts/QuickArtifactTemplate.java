@@ -20,6 +20,10 @@ import com.intellij.packaging.impl.artifacts.JarArtifactType;
 import com.intellij.packaging.impl.elements.DirectoryPackagingElement;
 import com.intellij.packaging.impl.elements.ProductionModuleOutputElementType;
 import com.intellij.packaging.impl.elements.TestModuleOutputElementType;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiClassOwner;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.util.Processor;
 
 import java.io.File;
@@ -96,7 +100,17 @@ public class QuickArtifactTemplate {
                     dir.addOrFindChild(new ClassesCopyPackagingElement(outputPath + "/" + file.getName()));
                 }
                 if(Utils.isCompilableFile(project,file)) {
-                    dir.addOrFindChild(new ClassesCopyPackagingElement(outputPath + "/" + file.getNameWithoutExtension()+".class"));
+                    final PsiManager psiManager = PsiManager.getInstance(project);
+                    PsiFile psiFile = psiManager.findFile(file);
+                    if( psiFile != null && psiFile instanceof PsiClassOwner) {
+                        PsiClassOwner psiClassOwner = (PsiClassOwner)psiFile;
+                        for(PsiClass psiClass : psiClassOwner.getClasses()) {
+                            dir.addOrFindChild(new ClassesCopyPackagingElement(outputPath + "/" + psiClass.getName() + ".class"));
+                        }
+                    } else {
+                        dir.addOrFindChild(new ClassesCopyPackagingElement(outputPath + "/" + file.getNameWithoutExtension() + ".class"));
+                    }
+
                 }
 
                 archive.addOrFindChild(dir);

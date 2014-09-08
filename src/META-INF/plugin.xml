@@ -5,14 +5,14 @@
     <vendor email="koscinski.jaroslaw@gmail.com" url="https://github.com/janwaros/QuickArtifact">Jarosław Kościński</vendor>
 
   <description><![CDATA[
-      This plugin allows to build artifacts with one click. There is no need to define anything, just right click on a module,
+      This plugin allows to build artifacts with one click. There is no need to define anything, just right click on a module, changelist,
        package or file(s) to build artifact from it. More advanced options coming soon.<br>
 
     ]]></description>
 
   <change-notes><![CDATA[
-      13.1.Beta<br>
-      <em>Beta version.</em>
+      13.1.Gamma<br>
+      <em>Gamma version.</em>
     ]]>
   </change-notes>
 
@@ -39,10 +39,15 @@
 
   <actions>
       <group id="QuickArtifactGroup">
-      <action id="QuickArtifact" class="com.github.janwaros.QuickArtifact.actions.BuildMenuAction"/>
+      <action id="QuickArtifactBuild" class="com.github.janwaros.QuickArtifact.actions.BuildMenuAction"/>
       <separator/>
           <add-to-group group-id="BuildMenu" anchor="before" relative-to-action="BuildArtifact"/>
           <add-to-group group-id="ProjectViewCompileGroup" anchor="first"/>
+      </group>
+      <group id="QuickArtifactChangelistGroup">
+          <action id="QuickArtifactChangelist" class="com.github.janwaros.QuickArtifact.actions.ChangelistMenuAction"/>
+          <separator/>
+          <add-to-group group-id="ChangesViewPopupMenu" anchor="before" relative-to-action="ChangesView.NewChangeList"/>
       </group>
   </actions>
 

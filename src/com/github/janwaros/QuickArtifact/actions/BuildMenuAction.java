@@ -129,25 +129,8 @@ public class BuildMenuAction extends CompileActionBase {
             return;
         }
 
-        presentation.setText(createPresentationText(elementDescription), true);
+        presentation.setText(Utils.createPresentationText(elementDescription), true);
         presentation.setEnabled(true);
-    }
-
-    private static String createPresentationText(String elementDescription) {
-        StringBuffer buffer = new StringBuffer(40);
-        buffer.append("Build Quick Artifact from").append(" ");
-        int length = elementDescription.length();
-        if (length > 23) {
-            if (StringUtil.startsWithChar(elementDescription, '\'')) {
-                buffer.append("'");
-            }
-            buffer.append("...");
-            buffer.append(elementDescription.substring(length - 20, length));
-        }
-        else {
-            buffer.append(elementDescription);
-        }
-        return buffer.toString();
     }
 
 
