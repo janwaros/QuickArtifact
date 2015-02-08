@@ -89,28 +89,6 @@ public class ClassesCopyPackagingElement extends FileOrDirectoryCopyPackagingEle
     }
 
     @Override
-    public void computeIncrementalCompilerInstructions(@NotNull IncrementalCompilerInstructionCreator creator,
-                                                       @NotNull PackagingElementResolvingContext resolvingContext,
-                                                       @NotNull ArtifactIncrementalCompilerContext compilerContext, @NotNull ArtifactType artifactType) {
-
-        /*
-        VirtualFile fileOutputPath = LocalFileSystem.getInstance().findFileByIoFile(new File(Utils.getVirtualFileOutputPath(virtualFile, resolvingContext.getProject())));
-
-        creator.addDirectoryCopyInstructions(fileOutputPath, new PackagingFileFilter() {
-            @Override
-            public boolean accept(@NotNull VirtualFile virtualFile, @NotNull CompileContext context) {
-
-                    return (virtualFile.getExtension().equals("class") &&
-                            (virtualFile.getNameWithoutExtension().equals(ClassesCopyPackagingElement.this.virtualFile.getNameWithoutExtension())
-                                    || virtualFile.getNameWithoutExtension().startsWith(ClassesCopyPackagingElement.this.virtualFile.getNameWithoutExtension() + "$")));
-
-            }
-        });
-        */
-
-    }
-
-    @Override
     public String toString() {
         return "<classes-copy>";
     }

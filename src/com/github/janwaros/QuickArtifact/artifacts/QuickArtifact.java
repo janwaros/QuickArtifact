@@ -110,7 +110,7 @@ public class QuickArtifact {
         // TODO: check if it is going to work without following line
         ArtifactsWorkspaceSettings.getInstance(builder.project).setArtifactsToBuild(Arrays.asList(artifact));
 
-        CompileScope scopeWithArtifact = ArtifactCompileScope.createScopeWithArtifacts(affectedModulesScope, Arrays.asList(artifact), true, true) ;
+        CompileScope scopeWithArtifact = ArtifactCompileScope.createScopeWithArtifacts(affectedModulesScope, Arrays.asList(artifact), true) ;
 
         Artifact originalArtifact = modifiableModel.findArtifact(artifact.getName());
         if(originalArtifact!=null) {
